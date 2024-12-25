@@ -42,7 +42,13 @@ app.post("/register", async function (req, res) {
   });
 });
 
-app.get("/login", isLoggedIn, (req, res) {
+
+app.get("/profile", isLoggedIn, function (req, res) {
+    console.log(req.user);
+    res.render("login");     
+})
+
+app.get("/login",isLoggedIn,function (req, res) {
   res.render("login");
 });
 
@@ -68,6 +74,11 @@ app.get("/logout", function (req, res) {
 // middleware for protected routes
 function isLoggedIn(req, res, next) {
     if (req.cookies.token === "") res.send("You must be logged in");
+    else {
+        let data = jwt.verify(req.cookies.token, "shhhh");
+
+        req.user = data;
+    }
     next();
 }
 app.listen(3000);
