@@ -2,8 +2,10 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const userModel = require('./models/user');
+const postModel = require('./models/posts');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 
 // middlewares
@@ -24,14 +26,18 @@ app.post("/register", async function (req, res) {
         return res.status(500).send("User already registered");
     }
     bcrypt.genSalt(10, function (err, salt) {
-        bcrypt.hash(password, salt, async function (err, hash) {
+        bcrypt.hash(req.password, salt, async function (err, hash) {
             let user = await userModel.create({
                 username,
                 email,
                 name,
                 age,
-                password:hash
-            })
+                password: hash
+            });
+            let token = jwt.sign({ email: email, userid: user._id }, "shhhh");
+            
+            res.cookie("token", token);
+            res.send("Registered");
         }) 
     })
 
