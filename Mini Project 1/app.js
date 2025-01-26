@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
-app.get("/login", isLoggedIn, (req, res) => {
+app.get("/login", (req, res) => {
   res.render("login");
 });
 
@@ -45,11 +45,11 @@ app.post("/login", async (req, res) => {
       }
 
       if (result) {
-        const token = jwt.sign({ email, userid: user._id }, "shhhh");
+        const token = jwt.sign({ email: email, userid: user._id }, "shhhh");
         res.cookie("token", token);
-        return res.status(200).send("You can login");
+        res.redirect("/profile"); // Use absolute path
       } else {
-        return res.redirect("/login");
+        res.redirect("/login"); // Use absolute path
       }
     });
   } catch (error) {
@@ -57,20 +57,18 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", isLoggedIn, async  (req, res) => {
+app.get("/profile", isLoggedIn, async (req, res) => {
   try {
-    const user = await userModel.findById(req.user.userid);
+    const user = await userModel.findOne({ email: req.user.email }); // Use email from the token
     if (!user) {
       return res.status(404).send("User not found");
     }
-      res.render("profile", { user });
-      // Pass user details to the EJS template
-      console.log(req.user);
+    console.log(user); // Logs user data to the terminal
+    res.render("profile", { user }); // Pass user data to the profile view
   } catch (error) {
     res.status(500).send("Something went wrong");
   }
 });
-
 
 app.post("/register", async (req, res) => {
   const { email, username, age, name, password } = req.body;
@@ -81,53 +79,49 @@ app.post("/register", async (req, res) => {
       return res.status(400).send("User already registered");
     }
 
-    bcrypt.genSalt(10, (err, salt) => {
-      if (err) {
-        return res.status(500).send("Error generating salt");
-      }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-      bcrypt.hash(password, salt, async (err, hash) => {
-        if (err) {
-          return res.status(500).send("Error hashing password");
-        }
-
-        const newUser = await userModel.create({
-          username,
-          email,
-          name,
-          age,
-          password: hash,
-        });
-
-        const token = jwt.sign({ email, userid: newUser._id }, "shhhh");
-        res.cookie("token", token);
-        return res.send("Registered successfully");
-      });
+    const newUser = await userModel.create({
+      username,
+      email,
+      name,
+      age,
+      password: hashedPassword,
     });
+
+    const token = jwt.sign({ email, userid: newUser._id }, "shhhh");
+    res.cookie("token", token);
+    return res.send("Registered successfully");
   } catch (error) {
     res.status(500).send("Something went wrong");
   }
 });
 
 app.get("/logout", (req, res) => {
-  res.cookie("token", "");
-  res.render("login");
+  res.cookie("token", "", { maxAge: 0 }); // Clear the token
+  res.redirect("/login"); // Redirect to login page
 });
 
 // Middleware to check login status
 function isLoggedIn(req, res, next) {
-  try {
-    if (!req.cookies.token) {
-      return res.status(401).send("You must be logged in");
-    }
+  const token = req.cookies.token;
 
-    const data = jwt.verify(req.cookies.token, "shhhh");
-    req.user = data;
-    next();
+  if (!token) {
+    return res.redirect("/login"); // Redirect if token is missing
+  }
+
+  try {
+    const data = jwt.verify(token, "shhhh"); // Verify the token
+    req.user = data; // Attach user data to request
+    next(); // Proceed to the next middleware
   } catch (error) {
-    return res.status(401).send("Invalid token");
+    console.error("Invalid token:", error.message);
+    return res.redirect("/login"); // Redirect if token is invalid
   }
 }
 
 // Start the server
-app.listen(3000);
+app.listen(3000, () => {
+  console.log("Server is running on http://localhost:3000");
+});
