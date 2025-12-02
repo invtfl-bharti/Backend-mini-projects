@@ -6,7 +6,7 @@ export function  errorHandler(err, req, res, next) {
     console.log("Error Handler")
     if(err instanceof BaseError) {
         return res.status(err.statusCode).json({
-            success:false,
+            success:true,
             message: err.message,
             error:err.details,
             data:{}
