@@ -1,3 +1,10 @@
-module.exports = {
-    ProblemController: require('../controllers/problem.controller')
-}
+import { addProblem, getAllProblems, getProblemById, updateProblemById, deleteProblemById,  } from "./problem.controller.js";
+
+export const ProblemController = {
+    addProblem,
+    getAllProblems,
+    getProblemById,
+    updateProblemById,
+    deleteProblemById,
+
+};

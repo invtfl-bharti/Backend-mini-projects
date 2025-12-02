@@ -1,6 +1,7 @@
 {
   "name": "algocode-backend",
   "version": "1.0.0",
+  "type":"module",
   "main": "index.js",
   "scripts": {
     "dev": "npx nodemon src/index.js",

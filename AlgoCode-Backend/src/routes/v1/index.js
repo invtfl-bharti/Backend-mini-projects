@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 
-const problemRouter = require('./problem.routes')
+import problemRouter from './problem.routes.js';
 const v1Router = express.Router();
 
 v1Router.use('/problems', problemRouter);
 
-module.exports = v1Router;
+export default v1Router;
