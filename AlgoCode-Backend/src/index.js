@@ -1,27 +1,33 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const { PORT } = require("./config/server.config");
+import express from "express";
+import bodyParser from "body-parser";
+import apiRouter from "./routes/index.js";
+// import v1Router from "./routes/v1/index.js";
 const app = express();
-const apiRouter = require("./routes");
-const BaseError = require("./errors/base.error");
-const NotFoundError = require("./errors/NotFoundError");
+import SERVER_CONFIG from './config/server.config.js';
+
+import { errorHandler } from './utils/errorHandler.js';
+
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.text());
 
+
+
 app.use("/api", apiRouter);
+// app.use("/api/v1", v1Router);
 
 app.get("/ping", (req, res) => {
   return res.json({ message: "Problem Service is alive" });
 });
-app.listen(PORT, () => {
-  console.log(`Server started at ${PORT}`);
-  try {
-    throw new NotFoundError({});
-  } catch (error) {
-    console.log("Something went wrong", error.name, error.stack);
-  } finally {
-    console.log("executed finally");
-  }
+
+
+
+app.use(errorHandler);
+ //last middleware if any error comes
+
+app.listen(SERVER_CONFIG.PORT, async () => {
+  console.log(`Server is running on port ${SERVER_CONFIG.PORT}`);
+  // await dbConnect();
 });

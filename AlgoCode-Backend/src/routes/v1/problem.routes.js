@@ -1,20 +1,20 @@
-const express = require('express');
+import express from 'express';
 
-const {ProblemController} = require('../../controllers')
+import { ProblemController } from '../../controllers/index.js';
 const problemRouter = express.Router();
 
-problemRouter.get('/ping', ProblemController.pingController);
+// problemRouter.get("/ping", ProblemController.pingProblemController);
 
-problemRouter.get('/:id', ProblemController.getProblem);
+problemRouter.post("/", ProblemController.addProblem);
 
-problemRouter.get('/', ProblemController.getProblem);
+problemRouter.get("/", ProblemController.getAllProblems);
 
-problemRouter.post('/', ProblemController.addProblem);
+problemRouter.get("/:id", ProblemController.getProblemById);
 
-problemRouter.delete('/:id',ProblemController.deleteProblem);
+problemRouter.put("/:id", ProblemController.updateProblemById);
 
-problemRouter.put('/:id', ProblemController.updateProblem);
+problemRouter.delete("/:id", ProblemController.deleteProblemById);
 
 
-module.exports = problemRouter;
+export default problemRouter;
 
