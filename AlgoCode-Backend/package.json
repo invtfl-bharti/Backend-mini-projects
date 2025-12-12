@@ -16,6 +16,7 @@
     "http-status-codes": "^2.3.0",
     "mongodb": "^7.0.0",
     "mongoose": "^9.0.0",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "sanitizer": "^0.1.3"
   }
 }

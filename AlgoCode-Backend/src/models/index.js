@@ -1,3 +1,1 @@
-module.exports = {
-    Problem: require('./problem.model.js'),
-}
+export const Problem = require('./problem.model.js');

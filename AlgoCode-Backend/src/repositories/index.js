@@ -1,0 +1,1 @@
+export const ProblemRepository = require('./problem.repository.js');
